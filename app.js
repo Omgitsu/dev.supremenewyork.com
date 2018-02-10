@@ -6,8 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var reload = require('reload');
 var form = require('express-form');
-var field = form.field;
 var hbs = require('hbs');
+var field = form.field;
 
 require('babel-register');
 require('babel-polyfill');
@@ -30,15 +30,28 @@ hbs.registerHelper(
         } else {
             return options.fn(this);
         }
-    });
+});
 
-// app.engine('handlebars', handlebars);
+hbs.registerHelper(
+    'selectHelper', function(selected, options) {
+        var html = options.fn(this);
+
+        if (selected) {
+            var values = selected.split(',');
+            var length = values.length;
+
+            for (var i = 0; i < length; i++) {
+                html = html.replace( new RegExp(' value=\"' + values[i] + '\"'), '$& selected="selected"');
+            }
+        }
+
+        return html;
+});
 
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-// app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());

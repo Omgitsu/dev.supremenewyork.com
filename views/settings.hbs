@@ -20,8 +20,17 @@
     <input class="item input-text" type="text" name="out_of_stock_odds" value="{{out_of_stock_odds}}"/>
     <div class="item">Add to Cart Max Delay (seconds)</div>
     <input class="item input-text" type="text" name="add_to_cart_max_delay" value="{{add_to_cart_max_delay}}"/>
+    <div class="item">Ignore Drop Week</div>
+    <input class="item checkbox" type="checkbox" name="ignore_drop_week" {{#if ignore_drop_week}}checked{{/if}}/>
     <div class="item">Target Drop Week</div>
-    <input class="item input-text" type="text" name="target_drop_week" value="{{target_drop_week}}"/>
+    <select name="target_drop_week">
+        {{#selectHelper target_drop_week}}
+            {{#each drop_weeks}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        {{/selectHelper}}
+    </select>
+    {{!-- <input class="item input-text" type="text" name="target_drop_week" value="{{target_drop_week}}"/> --}}
     <div class="item">Enable Target Drop Week</div>
     <input class="item checkbox" type="checkbox" name="use_target_drop_week" {{#if use_target_drop_week}}checked{{/if}}/>
     <input class="item button" type="submit" value="SAVE"/>

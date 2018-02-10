@@ -42,6 +42,24 @@ const ENABLE_DELAYS = false
 const BROKEN_JSON_ODDS = 1/10;
 const OUT_OF_STOCK_ODDS = 1/10;
 const ADD_TO_CART_MAX_DELAY = 5 * 1000;
+const DROP_WEEK_COUNT = 19;
+const DROP_SEASON = 'SS';
+const DROP_YEAR = '18';
+const IGNORE_DROP_WEEK = 'false';
+
+function dropWeeks() {
+  var drops = []
+  for (var i=1; i <= DROP_WEEK_COUNT; i++) {
+    var drop = '' + i;
+    if (i < 10) {
+      drop = 0 + drop;
+    }
+    drops.push(drop + DROP_SEASON + DROP_YEAR);
+  }
+  return drops;
+}
+
+let dropWeek = dropWeeks()[0];
 
 var settings = {
   'enable_http_errors': ALLOW_ERRORS,
@@ -52,7 +70,9 @@ var settings = {
   'item_in_stock': 'maybe',
   'out_of_stock_odds': OUT_OF_STOCK_ODDS,
   'add_to_cart_max_delay': ADD_TO_CART_MAX_DELAY,
-  'target_drop_week': '15FW17',
+  'drop_weeks': dropWeeks(),
+  'target_drop_week': dropWeek,
+  'ignore_drop_week': IGNORE_DROP_WEEK,
   'use_target_drop_week': true,
 }
 
@@ -196,19 +216,6 @@ router.get('/checkout', function(req, res, next) {
 
 
 function renderSettings(res) {
-
-  // # dirty hack for now
-  // var my_settings = settings;
-  // if (settings.item_in_stock === 'yes') {
-  //   my_settings.item_in_stock_true = true
-  // }
-  // if (settings.item_in_stock === 'no') {
-  //   my_settings.item_in_stock_false = true
-  // }
-  // if (settings.item_in_stock === 'maybe') {
-  //   my_settings.item_in_stock_maybe = true
-  // }
-
   res.render('settings', settings);
 }
 
@@ -249,6 +256,7 @@ router.post(
     field("out_of_stock_odds").trim().required(),
     field("add_to_cart_max_delay").trim().required(),
     field("target_drop_week").trim().required(),
+    field("ignore_drop_week").toBoolean(),
     field("use_target_drop_week").toBoolean(),
    ),
  
@@ -264,7 +272,9 @@ router.post(
       'item_in_stock': req.form.item_in_stock,
       'out_of_stock_odds': req.form.out_of_stock_odds,
       'add_to_cart_max_delay': req.form.add_to_cart_max_delay,
+      'drop_weeks': dropWeeks(),
       'target_drop_week': req.form.target_drop_week,
+      'ignore_drop_week': req.form.ignore_drop_week,
       'use_target_drop_week': req.form.use_target_drop_week,
    }
    settings = new_settings;
