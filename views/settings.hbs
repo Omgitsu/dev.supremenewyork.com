@@ -12,9 +12,9 @@
     <input class="item input-text" type="text" name="broken_json_odds" value="{{broken_json_odds}}"/>
     <div class="item">Item In Stock?</div>
     <select name="item_in_stock">
-        <option value="yes" {{#if item_in_stock_true}}selected{{/if}}>Yes</option>
-        <option value="no" {{#if item_in_stock_false}}selected{{/if}}>No</option>
-        <option value="maybe" {{#if item_in_stock_maybe}}selected{{/if}}>Maybe?</option>
+        <option value="yes" {{#equal item_in_stock 'yes'}}selected{{/equal}}>Yes</option>
+        <option value="no" {{#equal item_in_stock 'no'}}selected{{/equal}}>No</option>
+        <option value="maybe" {{#equal item_in_stock 'maybe'}}selected{{/equal}}>Maybe?</option>
     </select>
     <div class="item">Out of Stock Odds %</div>
     <input class="item input-text" type="text" name="out_of_stock_odds" value="{{out_of_stock_odds}}"/>
@@ -24,7 +24,7 @@
     <input class="item input-text" type="text" name="target_drop_week" value="{{target_drop_week}}"/>
     <div class="item">Enable Target Drop Week</div>
     <input class="item checkbox" type="checkbox" name="use_target_drop_week" {{#if use_target_drop_week}}checked{{/if}}/>
-    <input class="item button" type="submit"/>
+    <input class="item button" type="submit" value="SAVE"/>
   </div>
 </form>
 <style>

@@ -8,6 +8,7 @@
 :root {
   --yellow: #ffc600;
   --black: #272727;
+  --white: #ffffff;
 }
 
 html {
@@ -61,7 +62,7 @@ h6 {
   border: 5px solid rgba(0, 0, 0, 0.03);
   border-radius: 3px;
   font-size: 12px;
-  background-color: var(--yellow); /* best colour */
+  background-color: var(--white); /* best colour */
 }
 
 .item p {

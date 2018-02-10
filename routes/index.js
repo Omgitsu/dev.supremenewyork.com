@@ -197,18 +197,19 @@ router.get('/checkout', function(req, res, next) {
 
 function renderSettings(res) {
 
-  // # dirty hack
-  var my_settings = settings;
-  if (settings.item_in_stock === 'yes') {
-    my_settings.item_in_stock_true = true
-  }
-  if (settings.item_in_stock === 'no') {
-    my_settings.item_in_stock_false = true
-  }
-  if (settings.item_in_stock === 'maybe') {
-    my_settings.item_in_stock_maybe = true
-  }
-  res.render('settings', my_settings);
+  // # dirty hack for now
+  // var my_settings = settings;
+  // if (settings.item_in_stock === 'yes') {
+  //   my_settings.item_in_stock_true = true
+  // }
+  // if (settings.item_in_stock === 'no') {
+  //   my_settings.item_in_stock_false = true
+  // }
+  // if (settings.item_in_stock === 'maybe') {
+  //   my_settings.item_in_stock_maybe = true
+  // }
+
+  res.render('settings', settings);
 }
 
 /* GET settings page. */

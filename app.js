@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var reload = require('reload');
 var form = require('express-form');
 var field = form.field;
+var hbs = require('hbs');
 
 require('babel-register');
 require('babel-polyfill');
@@ -20,18 +21,16 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// app.set('view engine', 'handlebars');
-// var hbs = require('handlebars');
-// hbs.registerHelper(
-//     "equal", function(lvalue, rvalue, options) {
-//         if (arguments.length < 3)
-//             throw new Error("Handlebars Helper equal needs 2 parameters");
-//         if( lvalue!=rvalue ) {
-//             return options.inverse(this);
-//         } else {
-//             return options.fn(this);
-//         }
-//     });
+hbs.registerHelper(
+    'equal', function(lvalue, rvalue, options) {
+        if (arguments.length < 3)
+            throw new Error("Handlebars Helper equal needs 2 parameters");
+        if( lvalue!=rvalue ) {
+            return options.inverse(this);
+        } else {
+            return options.fn(this);
+        }
+    });
 
 // app.engine('handlebars', handlebars);
 
