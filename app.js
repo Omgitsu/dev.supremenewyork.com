@@ -4,7 +4,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var reload = require('reload')
+var reload = require('reload');
+var form = require('express-form');
+var field = form.field;
+
 require('babel-register');
 require('babel-polyfill');
 
@@ -17,15 +20,33 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+// app.set('view engine', 'handlebars');
+// var hbs = require('handlebars');
+// hbs.registerHelper(
+//     "equal", function(lvalue, rvalue, options) {
+//         if (arguments.length < 3)
+//             throw new Error("Handlebars Helper equal needs 2 parameters");
+//         if( lvalue!=rvalue ) {
+//             return options.inverse(this);
+//         } else {
+//             return options.fn(this);
+//         }
+//     });
+
+// app.engine('handlebars', handlebars);
+
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
+// app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/shop', index);
 app.use('/users', users);
 
 reload(app);

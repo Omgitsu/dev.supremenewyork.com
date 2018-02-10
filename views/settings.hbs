@@ -1,0 +1,37 @@
+<form action="/settings/" method="post">
+  <div class="container">
+    <div class="item">Enable HTTP Errors</div>
+    <input class="item checkbox" type="checkbox" name="enable_http_errors" {{#if enable_http_errors}}checked{{/if}}>
+    <div class="item">HTTP Error Odds %</div>
+    <input class="item input-text" type="text" name="http_error_odds" value="{{http_error_odds}}"/>
+    <div class="item">Enable Blank 200 Response</div>
+    <input class="item checkbox" type="checkbox" name="enable_blank_200_response" {{#if enable_blank_200_response}}checked{{/if}}/>
+    <div class="item">Enable Delays</div>
+    <input class="item checkbox" type="checkbox" name="enable_delays" {{#if enable_delays}}checked{{/if}}/>
+    <div class="item">Broken JSON Odds %</div>
+    <input class="item input-text" type="text" name="broken_json_odds" value="{{broken_json_odds}}"/>
+    <div class="item">Item In Stock?</div>
+    <select name="item_in_stock">
+        <option value="yes" {{#if item_in_stock_true}}selected{{/if}}>Yes</option>
+        <option value="no" {{#if item_in_stock_false}}selected{{/if}}>No</option>
+        <option value="maybe" {{#if item_in_stock_maybe}}selected{{/if}}>Maybe?</option>
+    </select>
+    <div class="item">Out of Stock Odds %</div>
+    <input class="item input-text" type="text" name="out_of_stock_odds" value="{{out_of_stock_odds}}"/>
+    <div class="item">Add to Cart Max Delay (seconds)</div>
+    <input class="item input-text" type="text" name="add_to_cart_max_delay" value="{{add_to_cart_max_delay}}"/>
+    <div class="item">Target Drop Week</div>
+    <input class="item input-text" type="text" name="target_drop_week" value="{{target_drop_week}}"/>
+    <div class="item">Enable Target Drop Week</div>
+    <input class="item checkbox" type="checkbox" name="use_target_drop_week" {{#if use_target_drop_week}}checked{{/if}}/>
+    <input class="item button" type="submit"/>
+  </div>
+</form>
+<style>
+    .container {
+      display: grid;
+      grid-gap: 20px;
+      {{!-- border: 10px solid var(--yellow); --}}
+      grid-template-columns: 30rem 15rem;
+    }
+</style>
