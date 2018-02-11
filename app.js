@@ -35,7 +35,6 @@ hbs.registerHelper(
 hbs.registerHelper(
     'selectHelper', function(selected, options) {
         var html = options.fn(this);
-
         if (selected) {
             var values = selected.split(',');
             var length = values.length;
@@ -44,7 +43,6 @@ hbs.registerHelper(
                 html = html.replace( new RegExp(' value=\"' + values[i] + '\"'), '$& selected="selected"');
             }
         }
-
         return html;
 });
 

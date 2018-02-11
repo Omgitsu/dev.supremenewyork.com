@@ -3,6 +3,12 @@ var router = express.Router();
 var form = require('express-form');
 var field = form.field;
 
+
+// ********
+// settings
+// ********
+// MARK:settings
+
 /*
 
   cases where the server could screw with you:
@@ -26,8 +32,7 @@ var field = form.field;
   which WILL be a screwup since no pages should respond as just empty
   TODO: for completeness might want to add 301 redirects as error conditions
 */
-const ERROR_CODES = [ {200: 'OK',                    'delay': 3 * 1000},
-                      {400: 'Bad Request',           'delay': 1 * 1000},
+var ERROR_CODES = [   {400: 'Bad Request',           'delay': 1 * 1000},
                       {401: 'Unauthorized',          'delay': 0 * 1000},
                       {403: 'Forbidden',             'delay': 0 * 1000},
                       {404: 'Not Found',             'delay': 0 * 1000},
@@ -45,7 +50,9 @@ const ADD_TO_CART_MAX_DELAY = 5 * 1000;
 const DROP_WEEK_COUNT = 19;
 const DROP_SEASON = 'SS';
 const DROP_YEAR = '18';
-const IGNORE_DROP_WEEK = 'false';
+// const IGNORE_DROP_WEEK = 'false';
+const WRONG_DROP_WEEK = '01FW94';
+const DEFAULT_DATE = '12/07/2017'; 
 
 function dropWeeks() {
   var drops = []
@@ -72,9 +79,18 @@ var settings = {
   'add_to_cart_max_delay': ADD_TO_CART_MAX_DELAY,
   'drop_weeks': dropWeeks(),
   'target_drop_week': dropWeek,
-  'ignore_drop_week': IGNORE_DROP_WEEK,
+  // 'ignore_drop_week': IGNORE_DROP_WEEK,
   'use_target_drop_week': true,
 }
+
+function setSettings() {
+  if (settings.enable_blank_200_response) {
+    {
+      ERROR_CODES.push({200: 'OK', 'delay': 3 * 1000},)
+    }
+  }
+}
+
 
 console.log(settings);
 
@@ -89,7 +105,7 @@ function returnError(res) {
   let index = Math.floor(Math.random()*ERROR_CODES.length)
   let item = ERROR_CODES[index];
   let code = Object.keys(item)[0];
-  if (ENABLE_DELAYS) {
+  if (settings.enable_delays) {
     delay = item.delay;
   }
   console.log(code + ' waiting: ' + delay + 'ms');
@@ -97,7 +113,7 @@ function returnError(res) {
 }
 
 function isError(odds) {
-  if (ALLOW_ERRORS && Math.random() <= odds) {
+  if (settings.enable_http_errors && Math.random() <= odds) {
     return true
   }
   return false
@@ -126,21 +142,26 @@ function randomIntBetween(low, high) {
 /* GET the mobile stocklist */
 router.get('/mobile_stock.json', function(req, res, next) {
 
-  if (isError(ERROR_ODDS)) {
+  if (isError(settings.http_error_odds)) {
     returnError(res);
   } else {
 
     var template = 'mobile_stock';
-    if (isError(BROKEN_JSON_ODDS)) {
+    if (isError(settings.broken_json_odds)) {
       template = 'mobile_stock_broken';
       console.log('return broken json');
+    }
+    
+    let drop_week = WRONG_DROP_WEEK;
+    if (settings.use_target_drop_week) {
+      drop_week = settings.target_drop_week
     }
 
     res.render(template, { 
       layout: false, 
       title: 'dev.supremenewyork.com',
-      week: '15FW17', // 16FW17
-      date: '12/07/2017' // 11/30/2017 or 12/07/2017
+      week: drop_week,
+      date: DEFAULT_DATE,
     });
   }
 });
@@ -148,19 +169,19 @@ router.get('/mobile_stock.json', function(req, res, next) {
 /* GET the JSON for a certain item  */
 router.get('/shop/:item_id', function(req, res, next) {
 
-  if (isError(ERROR_ODDS)) {
+  if (isError(settings.http_error_odds)) {
     returnError(res);
   } else {
 
     let item_id = req.params.item_id.split('.')[0]
     var template = item_id;
-    if (isError(BROKEN_JSON_ODDS)) {
+    if (isError(settings.broken_json_odds)) {
       template = item_id + '_broken';
       console.log('return broken json');
     }
 
     var stock = 1;
-    if (isError(OUT_OF_STOCK_ODDS)) {
+    if (isError(settings.out_of_stock_odds)) {
       stock = 0
     }
     
@@ -180,7 +201,7 @@ router.get('/shop/:item_id', function(req, res, next) {
 */
 router.get('/shop/:item_id/add', function(req, res, next) {
 
-  if (isError(ERROR_ODDS)) {
+  if (isError(settings.http_error_odds)) {
     returnError(res);
   } else {
 
@@ -192,8 +213,8 @@ router.get('/shop/:item_id/add', function(req, res, next) {
         res.sendStatus(404)
       } else {
         var delay = 0
-        if (ENABLE_DELAYS) {
-          delay = randomIntBetween(0, ADD_TO_CART_MAX_DELAY);
+        if (settings.enable_delays) {
+          delay = randomIntBetween(0, settings.add_to_cart_max_delay);
           console.log("Add successful but delaying by: " + delay + "ms");      
         }
         setTimeout(()=>{res.sendStatus(200)}, delay);
@@ -256,7 +277,7 @@ router.post(
     field("out_of_stock_odds").trim().required(),
     field("add_to_cart_max_delay").trim().required(),
     field("target_drop_week").trim().required(),
-    field("ignore_drop_week").toBoolean(),
+    // field("ignore_drop_week").toBoolean(),
     field("use_target_drop_week").toBoolean(),
    ),
  
@@ -274,10 +295,11 @@ router.post(
       'add_to_cart_max_delay': req.form.add_to_cart_max_delay,
       'drop_weeks': dropWeeks(),
       'target_drop_week': req.form.target_drop_week,
-      'ignore_drop_week': req.form.ignore_drop_week,
+      // 'ignore_drop_week': req.form.ignore_drop_week,
       'use_target_drop_week': req.form.use_target_drop_week,
    }
    settings = new_settings;
+   setSettings();
 
    console.log(settings);
 
@@ -287,13 +309,6 @@ router.post(
        renderSettings(res);
  
      } else {
-       // Or, use filtered form data from the form object: 
-       console.log("target_drop_week:", req.form.target_drop_week);
-       console.log("enable_http_errors:", req.form.enable_http_errors);
-       console.log(settings);
-
-
-      //  console.log("Email:", req.form.email);
       renderSettings(res);
      }
   }

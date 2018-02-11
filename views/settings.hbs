@@ -2,13 +2,13 @@
   <div class="container">
     <div class="item">Enable HTTP Errors</div>
     <input class="item checkbox" type="checkbox" name="enable_http_errors" {{#if enable_http_errors}}checked{{/if}}>
-    <div class="item">HTTP Error Odds %</div>
+    <div class="item">HTTP Error Odds (decimal)</div>
     <input class="item input-text" type="text" name="http_error_odds" value="{{http_error_odds}}"/>
     <div class="item">Enable Blank 200 Response</div>
     <input class="item checkbox" type="checkbox" name="enable_blank_200_response" {{#if enable_blank_200_response}}checked{{/if}}/>
     <div class="item">Enable Delays</div>
     <input class="item checkbox" type="checkbox" name="enable_delays" {{#if enable_delays}}checked{{/if}}/>
-    <div class="item">Broken JSON Odds %</div>
+    <div class="item">Broken JSON Odds (decimal)</div>
     <input class="item input-text" type="text" name="broken_json_odds" value="{{broken_json_odds}}"/>
     <div class="item">Item In Stock?</div>
     <select name="item_in_stock">
@@ -16,12 +16,12 @@
         <option value="no" {{#equal item_in_stock 'no'}}selected{{/equal}}>No</option>
         <option value="maybe" {{#equal item_in_stock 'maybe'}}selected{{/equal}}>Maybe?</option>
     </select>
-    <div class="item">Out of Stock Odds %</div>
+    <div class="item">Out of Stock Odds (decimal)</div>
     <input class="item input-text" type="text" name="out_of_stock_odds" value="{{out_of_stock_odds}}"/>
-    <div class="item">Add to Cart Max Delay (seconds)</div>
+    <div class="item">Add to Cart Max Delay (milliseconds)</div>
     <input class="item input-text" type="text" name="add_to_cart_max_delay" value="{{add_to_cart_max_delay}}"/>
-    <div class="item">Ignore Drop Week</div>
-    <input class="item checkbox" type="checkbox" name="ignore_drop_week" {{#if ignore_drop_week}}checked{{/if}}/>
+    {{!-- <div class="item">Ignore Drop Week</div>
+    <input class="item checkbox" type="checkbox" name="ignore_drop_week" {{#if ignore_drop_week}}checked{{/if}}/> --}}
     <div class="item">Target Drop Week</div>
     <select name="target_drop_week">
         {{#selectHelper target_drop_week}}
