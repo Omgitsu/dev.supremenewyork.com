@@ -19,6 +19,7 @@ var field = form.field;
   * returns empty html (but status code is fine)
   * crashes and takes waaaay too long to do anything (somewhat covered by the 500 error codes)
   * goes out of stock in between finding the item, seeing it's in stock and the request to add it is recognized
+  * unexpected redirects
   
   cases where you fucked up (not handled here):
   * misspelled keywords
@@ -32,7 +33,8 @@ var field = form.field;
   which WILL be a screwup since no pages should respond as just empty
   TODO: for completeness might want to add 301 redirects as error conditions
 */
-var ERROR_CODES = [   {400: 'Bad Request',           'delay': 1 * 1000},
+var ERROR_CODES = [   {200: 'OK',                    'delay': 3 * 1000},
+                      {400: 'Bad Request',           'delay': 1 * 1000},
                       {401: 'Unauthorized',          'delay': 0 * 1000},
                       {403: 'Forbidden',             'delay': 0 * 1000},
                       {404: 'Not Found',             'delay': 0 * 1000},
@@ -42,8 +44,9 @@ var ERROR_CODES = [   {400: 'Bad Request',           'delay': 1 * 1000},
                       {504: 'Gateway Timeout',       'delay': 5 * 1000},];
 
 const ALLOW_ERRORS = true;
-const ERROR_ODDS = 1/10;
-const ENABLE_DELAYS = false
+const ERROR_ODDS = 1/2;
+const ENABLE_DELAYS = false;
+const ENABLE_BLANK_200_RESPONSE = false;
 const BROKEN_JSON_ODDS = 1/10;
 const OUT_OF_STOCK_ODDS = 1/10;
 const ADD_TO_CART_MAX_DELAY = 5 * 1000;
@@ -71,7 +74,7 @@ let dropWeek = dropWeeks()[0];
 var settings = {
   'enable_http_errors': ALLOW_ERRORS,
   'http_error_odds': ERROR_ODDS,
-  'enable_blank_200_response': true,
+  'enable_blank_200_response': ENABLE_BLANK_200_RESPONSE,
   'enable_delays': ENABLE_DELAYS,
   'broken_json_odds': BROKEN_JSON_ODDS,
   'item_in_stock': 'maybe',
@@ -83,14 +86,6 @@ var settings = {
   'use_target_drop_week': true,
 }
 
-function setSettings() {
-  if (settings.enable_blank_200_response) {
-    {
-      ERROR_CODES.push({200: 'OK', 'delay': 3 * 1000},)
-    }
-  }
-}
-
 
 console.log(settings);
 
@@ -99,12 +94,27 @@ console.log(settings);
 // ********
 // MARK:errors
 
+function chooseError() {
+
+  var code = 0;
+  var index
+  var item
+  // if code is empty, or if code==200 and enable_blank_200_response = false
+  // keep trying for another code
+  do {
+    index = Math.floor(Math.random()*ERROR_CODES.length)
+    item = ERROR_CODES[index];
+    code = parseInt(Object.keys(item)[0]);
+  } while(settings.enable_blank_200_response === false && code === 200)
+
+  return item
+}
+
 function returnError(res) {
 
+  let item = chooseError()
+  const code = Object.keys(item)[0];
   let delay = 0
-  let index = Math.floor(Math.random()*ERROR_CODES.length)
-  let item = ERROR_CODES[index];
-  let code = Object.keys(item)[0];
   if (settings.enable_delays) {
     delay = item.delay;
   }
@@ -175,13 +185,17 @@ router.get('/shop/:item_id', function(req, res, next) {
 
     let item_id = req.params.item_id.split('.')[0]
     var template = item_id;
-    if (isError(settings.broken_json_odds)) {
+    if (Math.random() <= settings.broken_json_odds) {
       template = item_id + '_broken';
       console.log('return broken json');
     }
 
     var stock = 1;
-    if (isError(settings.out_of_stock_odds)) {
+    if (settings.item_in_stock === 'maybe') {
+      if (Math.random() <= settings.out_of_stock_odds) {
+        stock = 0
+      }
+    } else if (settings.item_in_stock === 'no') {
       stock = 0
     }
     
@@ -195,39 +209,55 @@ router.get('/shop/:item_id', function(req, res, next) {
 });
 
 /* 
-  GET add to cart page 
+  POST add to cart page 
   /shop/${itemID}/add
   can throw errors, and can be successful with long delays
 */
-router.get('/shop/:item_id/add', function(req, res, next) {
+router.post('/shop/:item_id/add.json', 
 
-  if (isError(settings.http_error_odds)) {
-    returnError(res);
-  } else {
+  // Form filter and validation middleware 
+  form(
+    field("s"),
+    field("st"),
+    field("qty"),
+   ),
 
-    // make sure template exists
-    // this will mock a bad item_id 
-    let item_id = req.params.item_id
-    res.render(item_id, {}, function(err, html) {
-      if(err) {
-        res.sendStatus(404)
-      } else {
-        var delay = 0
-        if (settings.enable_delays) {
-          delay = randomIntBetween(0, settings.add_to_cart_max_delay);
-          console.log("Add successful but delaying by: " + delay + "ms");      
+  function(req, res, next) {
+
+    if (isError(settings.http_error_odds)) {
+      returnError(res);
+    } else {
+
+      // make sure template exists
+      // this will mock a bad item_id 
+      let item_id = req.params.item_id
+      console.log('Form: ', req.form)
+      console.log('Cookies: ', req.cookies)
+
+      res.render(item_id, {}, function(err, html) {
+        if(err) {
+          res.sendStatus(404)
+        } else {
+
+          const randomInt = Math.floor(Math.random() * 9999) + 0
+          res.cookie('cookieName'+randomInt, randomInt)
+
+          var delay = 0
+          if (settings.enable_delays) {
+            delay = randomIntBetween(0, settings.add_to_cart_max_delay);
+            console.log("Add successful but delaying by: " + delay + "ms");      
+          }
+          setTimeout(()=>{res.sendStatus(200)}, delay);
         }
-        setTimeout(()=>{res.sendStatus(200)}, delay);
-      }
-    });
-  }
+      });
+    }
 });
 
 /* 
  GET the checkout page / form 
 */
 router.get('/checkout', function(req, res, next) {
-
+  console.log('Cookies: ', req.cookies)
   res.render('checkout', { 
     layout: false, 
     title: 'CHECKOUT!'
@@ -299,7 +329,6 @@ router.post(
       'use_target_drop_week': req.form.use_target_drop_week,
    }
    settings = new_settings;
-   setSettings();
 
    console.log(settings);
 
