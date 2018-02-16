@@ -349,4 +349,18 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'dev.supremenewyork.com' });
 });
 
+
+/* GET fake 2Captcha page. */
+router.get('/2captcha/request', function(req, res, next) {
+  let message = {"status":1,"request":"1080048194"}
+  res.json(message);
+});
+
+/* GET fake 2Captcha response page. */
+router.get('/2captcha/response', function(req, res, next) {
+  let message = {"status":0,"request":"CAPCHA_NOT_READY"}
+  // let message = {"status":0,"request":"ERROR_WRONG_CAPTCHA_ID"}
+  res.json(message);
+});
+
 module.exports = router;

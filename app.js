@@ -59,6 +59,12 @@ app.use('/', index);
 app.use('/shop', index);
 app.use('/users', users);
 
+var server = app.listen(3000, function () {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log('running at http://' + host + ':' + port)
+});
+
 reload(app);
 
 // catch 404 and forward to error handler
