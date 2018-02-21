@@ -122,7 +122,7 @@ function returnError(res) {
   setTimeout(()=>{res.sendStatus(code)}, delay);
 }
 
-function isError(odds) {
+function sendError(odds) {
   if (settings.enable_http_errors && Math.random() <= odds) {
     return true
   }
@@ -152,12 +152,12 @@ function randomIntBetween(low, high) {
 /* GET the mobile stocklist */
 router.get('/mobile_stock.json', function(req, res, next) {
 
-  if (isError(settings.http_error_odds)) {
+  if (sendError(settings.http_error_odds)) {
     returnError(res);
   } else {
 
-    var template = 'mobile_stock';
-    if (isError(settings.broken_json_odds)) {
+    let template = 'mobile_stock';
+    if (sendError(settings.broken_json_odds)) {
       template = 'mobile_stock_broken';
       console.log('return broken json');
     }
@@ -179,7 +179,7 @@ router.get('/mobile_stock.json', function(req, res, next) {
 /* GET the JSON for a certain item  */
 router.get('/shop/:item_id', function(req, res, next) {
 
-  if (isError(settings.http_error_odds)) {
+  if (sendError(settings.http_error_odds)) {
     returnError(res);
   } else {
 
@@ -224,7 +224,7 @@ router.post('/shop/:item_id/add.json',
 
   function(req, res, next) {
 
-    if (isError(settings.http_error_odds)) {
+    if (sendError(settings.http_error_odds)) {
       returnError(res);
     } else {
 
@@ -351,6 +351,8 @@ router.get('/', function(req, res, next) {
 
 
 /* GET fake 2Captcha page. */
+
+
 router.get('/2captcha/request', function(req, res, next) {
   let message = {"status":1,"request":"1080048194"}
   res.json(message);
