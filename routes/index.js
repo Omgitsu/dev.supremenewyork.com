@@ -119,11 +119,13 @@ function returnError(res) {
     delay = item.delay;
     console.log(code + ' waiting: ' + delay + 'ms');
   }
+  // Supreme's servers don't seem to send a status code for 404s
   if (code === 404) {
-    res.status(404).render('404');
-  } else {
-    setTimeout(()=>{res.sendStatus(code)}, delay);
+    setTimeout(()=>{res.status(200).render('404')}, delay);
+    return;
   }
+  setTimeout(()=>{res.sendStatus(code)}, delay);
+  
 }
 
 function sendError(odds) {
@@ -190,7 +192,7 @@ router.get('/shop/:item_id', function(req, res, next) {
     let item_id = req.params.item_id.split('.')[0]
     var template = item_id;
     if (Math.random() <= settings.broken_json_odds) {
-      template = item_id + '_broken';
+      template = 'broken_json';
       console.log('return broken json');
     }
 
