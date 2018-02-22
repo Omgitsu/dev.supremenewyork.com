@@ -61,9 +61,9 @@ function dropWeeks() {
   var drops = []
   for (var i=1; i <= DROP_WEEK_COUNT; i++) {
     var drop = '' + i;
-    if (i < 10) {
-      drop = 0 + drop;
-    }
+    // if (i < 10) {
+    //   drop = 0 + drop;
+    // }
     drops.push(drop + DROP_SEASON + DROP_YEAR);
   }
   return drops;
@@ -117,9 +117,13 @@ function returnError(res) {
   let delay = 0
   if (settings.enable_delays) {
     delay = item.delay;
+    console.log(code + ' waiting: ' + delay + 'ms');
   }
-  console.log(code + ' waiting: ' + delay + 'ms');
-  setTimeout(()=>{res.sendStatus(code)}, delay);
+  if (code === 404) {
+    res.status(404).render('404');
+  } else {
+    setTimeout(()=>{res.sendStatus(code)}, delay);
+  }
 }
 
 function sendError(odds) {
