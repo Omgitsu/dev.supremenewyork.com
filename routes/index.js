@@ -263,6 +263,7 @@ router.post('/shop/:item_id/add.json',
  GET the checkout page / form 
 */
 router.get('/checkout', function(req, res, next) {
+  console.log('checkout!');
   console.log('Cookies: ', req.cookies)
   res.render('checkout', { 
     layout: false, 
@@ -271,6 +272,13 @@ router.get('/checkout', function(req, res, next) {
 
 });
 
+router.get('/gmail', function(req, res, next) {
+  console.log('Cookies: ', req.cookies)
+  const randomInt = Math.floor(Math.random() * 9999) + 0
+  res.cookie('cookieName'+randomInt, randomInt, { expires: false, maxAge: 2147483647 })
+  // 2147483647
+  res.render('index', { title: 'dev.supremenewyork.com' });
+});
 
 function renderSettings(res) {
   res.render('settings', settings);
