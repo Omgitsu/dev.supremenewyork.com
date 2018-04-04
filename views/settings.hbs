@@ -8,6 +8,8 @@
     <input class="item checkbox" type="checkbox" name="enable_blank_200_response" {{#if enable_blank_200_response}}checked{{/if}}/>
     <div class="item">Enable Delays</div>
     <input class="item checkbox" type="checkbox" name="enable_delays" {{#if enable_delays}}checked{{/if}}/>
+    <div class="item">Mobile Stock Missing New</div>
+    <input class="item checkbox" type="checkbox" name="mobile_stock_missing_new" {{#if mobile_stock_missing_new}}checked{{/if}}/>
     <div class="item">Broken JSON Odds (decimal)</div>
     <input class="item input-text" type="text" name="broken_json_odds" value="{{broken_json_odds}}"/>
     <div class="item">Item In Stock?</div>
@@ -33,6 +35,10 @@
     {{!-- <input class="item input-text" type="text" name="target_drop_week" value="{{target_drop_week}}"/> --}}
     <div class="item">Enable Target Drop Week</div>
     <input class="item checkbox" type="checkbox" name="use_target_drop_week" {{#if use_target_drop_week}}checked{{/if}}/>
+    <div class="item">Target Drop Date (of form 03/22/2018)</div>
+    <input class="item input-text" type="text" name="target_drop_date" value="{{target_drop_date}}"/>
+    <div class="item">Enable Target Drop Date</div>
+    <input class="item checkbox" type="checkbox" name="use_target_drop_date" {{#if use_target_drop_date}}checked{{/if}}/>
     <input class="item button" type="submit" value="SAVE"/>
   </div>
 </form>

@@ -45,9 +45,10 @@ var ERROR_CODES = [   {200: 'OK',                    'delay': 3 * 1000},
 
 const ALLOW_ERRORS = true;
 const ERROR_ODDS = 1/2;
-const ENABLE_DELAYS = false;
-const ENABLE_BLANK_200_RESPONSE = false;
+const ENABLE_DELAYS = true;
+const ENABLE_BLANK_200_RESPONSE = true;
 const BROKEN_JSON_ODDS = 1/10;
+const MOBILE_STOCK_MISSING_NEW = true;
 const OUT_OF_STOCK_ODDS = 1/10;
 const ADD_TO_CART_MAX_DELAY = 5 * 1000;
 const DROP_WEEK_COUNT = 19;
@@ -55,7 +56,8 @@ const DROP_SEASON = 'SS';
 const DROP_YEAR = '18';
 // const IGNORE_DROP_WEEK = 'false';
 const WRONG_DROP_WEEK = '01FW94';
-const DEFAULT_DATE = '12/07/2017'; 
+const DEFAULT_DATE = '12/07/2017';
+const TARGET_DROP_DATE = '05/5/2017'
 
 function dropWeeks() {
   var drops = []
@@ -77,13 +79,16 @@ var settings = {
   'enable_blank_200_response': ENABLE_BLANK_200_RESPONSE,
   'enable_delays': ENABLE_DELAYS,
   'broken_json_odds': BROKEN_JSON_ODDS,
+  'mobile_stock_missing_new': MOBILE_STOCK_MISSING_NEW,
   'item_in_stock': 'maybe',
   'out_of_stock_odds': OUT_OF_STOCK_ODDS,
   'add_to_cart_max_delay': ADD_TO_CART_MAX_DELAY,
   'drop_weeks': dropWeeks(),
   'target_drop_week': dropWeek,
+  'target_drop_date': TARGET_DROP_DATE,
   // 'ignore_drop_week': IGNORE_DROP_WEEK,
   'use_target_drop_week': true,
+  'use_target_drop_date': true,
 }
 
 
@@ -163,7 +168,11 @@ router.get('/mobile_stock.json', function(req, res, next) {
   } else {
 
     let template = 'mobile_stock';
-    if (sendError(settings.broken_json_odds)) {
+
+    if (settings.mobile_stock_missing_new) {
+      template = 'mobile_stock_no_new';
+      console.log('return mobile_stock with no new');
+    } else if (sendError(settings.broken_json_odds)) {
       template = 'mobile_stock_broken';
       console.log('return broken json');
     }
@@ -173,11 +182,16 @@ router.get('/mobile_stock.json', function(req, res, next) {
       drop_week = settings.target_drop_week
     }
 
+    let drop_date = DEFAULT_DATE;
+    if (settings.use_target_drop_date) {
+      drop_date = settings.target_drop_date
+    }
+
     res.render(template, { 
       layout: false, 
       title: 'dev.supremenewyork.com',
       week: drop_week,
-      date: DEFAULT_DATE,
+      date: drop_date,
     });
   }
 });
@@ -297,6 +311,7 @@ router.get('/settings', function(req, res, next) {
   http_error_odds
   enable_blank_200_response
   enable_delays
+  mobile_stock_missing_new
   broken_json_odds
   item_in_stock
   out_of_stock_odds
@@ -316,6 +331,7 @@ router.post(
     field("http_error_odds").trim().required(),
     field("enable_blank_200_response").toBoolean(),
     field("enable_delays").toBoolean(),
+    field("mobile_stock_missing_new").toBoolean(),
     field("broken_json_odds").trim().required(),
     field("item_in_stock").trim().required(),
     field("out_of_stock_odds").trim().required(),
@@ -323,6 +339,8 @@ router.post(
     field("target_drop_week").trim().required(),
     // field("ignore_drop_week").toBoolean(),
     field("use_target_drop_week").toBoolean(),
+    field("target_drop_date").trim().required(),
+    field("use_target_drop_date").toBoolean(),
    ),
  
    // Express request-handler now receives filtered and validated data 
@@ -333,6 +351,7 @@ router.post(
       'http_error_odds': req.form.http_error_odds,
       'enable_blank_200_response': req.form.enable_blank_200_response,
       'enable_delays': req.form.enable_delays,
+      'mobile_stock_missing_new': req.form.mobile_stock_missing_new,
       'broken_json_odds': req.form.broken_json_odds,
       'item_in_stock': req.form.item_in_stock,
       'out_of_stock_odds': req.form.out_of_stock_odds,
@@ -341,6 +360,8 @@ router.post(
       'target_drop_week': req.form.target_drop_week,
       // 'ignore_drop_week': req.form.ignore_drop_week,
       'use_target_drop_week': req.form.use_target_drop_week,
+      'target_drop_date': req.form.target_drop_date,
+      'use_target_drop_date': req.form.use_target_drop_date,
    }
    settings = new_settings;
 
